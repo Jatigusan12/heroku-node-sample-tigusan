@@ -1,0 +1,29 @@
+{
+  "name": "heroku-node-sample-tigusan",
+  "version": "1.0.0",
+  "description": "A simple node app deployed to Heroku",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jatigusan12/heroku-node-sample-tigusan.git"
+  },
+  "keywords": [
+    "heroku",
+    "node"
+  ],
+  "author": "jhon adrian tigusan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jatigusan12/heroku-node-sample-tigusan/issues"
+  },
+  "homepage": "https://github.com/Jatigusan12/heroku-node-sample-tigusan#readme",
+  "engines": {
+    "node": "10.15"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
