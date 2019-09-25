@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- Page's Title -->
+    <title>Mix iMingle</title>
+
+    <!-- Page styling -->
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+
+    <!-- Socket.IO client script -->
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+    <!-- User 'Log-In' area -->
+    <div id = "loginArea">
+        <form id="loginForm">
+            <p id="loginMessage" ><b>Enter your nickname to join!</b></p>
+            <input class="inputArea1" id="nickname" autocomplete="off"/> <br /> <br /> <br /> <br /> <br />
+            <input type="submit" class="button" value="Join"  />
+        </form>
+    </div>
+
+    <!-- Chat -->
+    <div id="chat">
+        <div id="ownMessage"></div>
+        <div id="otherMessage"></div>
+    </div>
+
+
+    <!-- User Message Area -->
+    <div id = "chatroomArea">
+        <br />
+        <div id = "chatroomHeader">
+            <!-- List of currently connect users -->
+            <p id = "connectedUsers" class = "userList" ><b>Connected Users:</b></p>
+            <form class="customForm" id="messageForm" >
+                <label><b>Write your message bellow: </b></label> <br />
+                <input class="inputArea2" rows ="4" cols="50" id="message"/>
+                <br />
+            </form>
+            <br />
+        </div>
+        <br /><br /><br />
+
+
+    </div>
+
+
+    <!-- This script forces textarea content to be sent after 'enter' is pressed -->
+    <script type="text/javascript" src="textarea.js"></script>
+
+    <!-- This script manages sockets and form submiting -->
+    <script type="text/javascript" src="index.js"></script>
+
+</body>
+
+
+</html>
