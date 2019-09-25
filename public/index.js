@@ -34,7 +34,7 @@ $(function(){
         if ( (nn != '') && !forbiddenCharacters.test(nn) ){
             // Associate the nickname to the socket
             socket.nickname = nn;
-
+            
             // Hide the login area and display the chatroom itself
             $loginArea.hide();
             $chatroomArea.show();
