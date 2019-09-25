@@ -1,105 +1,53 @@
-$(function(){
-    // Connection
-    var socket = io.connect();
+var express = require('express');
+var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io').listen(server);
+var port1 = process.env.PORT||3000; 
 
-    // Login 'screen' variables
-    var $loginArea = $('#loginArea');
-    var $loginForm = $('#loginForm');
-    var $nickname = $('#nickname');
+connectedUsers = [];
+app.use(express.static('public'));
+server.listen(port1);1
+console.log('Server started.');
 
-    // Chatroom variables
-    var $chatroomArea = $('#chatroomArea');
-    var $messageForm = $('#messageForm');
-    var $message = $('#message');
-    var $chat = $('#chat');
-    var $connectedUsers = $('#connectedUsers');
+io.sockets.on('connection' , clientConnected);
 
-    $chatroomArea.hide();   // Chatroom is not visible before choosing a nickname
-    $chat.hide();
-        // var beep = new Audio('beep.mp3');
-        // beep.volume = 0.03;
-
-    // Send the user's nickname to the server
-    $loginForm.submit(function(e){
-        // Prevent page from refreshing
-        e.preventDefault();
-
-        var nn = $nickname.val();
-
-        // Special characters that are not accepted
-        var forbiddenCharacters = /[<>!|/\\\[\]{}()='?,.;.*+ºª^~´`]/;
-
-        
-        // Only accept the nickname if it isn't 'empty' and if it doesn't have certain special characters
-        if ( (nn != '') && !forbiddenCharacters.test(nn) ){
-            // Associate the nickname to the socket
-            socket.nickname = nn;
-            
-            // Hide the login area and display the chatroom itself
-            $loginArea.hide();
-            $chatroomArea.show();
-            $chat.show();
-
-            // Display a 'welcoming' message
-            $chat.append('<p class="systemMessage" ><i>Welcome <b>' + socket.nickname + '</b>! Press \'<b>ENTER</b>\' to send it!</i></p>');
-
-            // Notify the server that the new user chose a nickname
-            socket.emit('new client nickname' , socket.nickname);
-        }
-        else{
-            // Clear the input area
-            $nickname.val('');
+function clientConnected(socket){
+    socket.nickname = '';   
+    console.log('Client  ' + socket.handshake.address + '  connected.');
+    socket.on('disconnect' , function (){
+        console.log('Client  ' + socket.handshake.address + '  disconnected.');
+        if (socket.nickname != ''){
+            socket.broadcast.emit('system message' , 'User <b>' + socket.nickname + '</b> has left the chat-room.');
+            connectedUsers.splice(connectedUsers.indexOf(socket),1);
+            updateConnectedUsers();
         }
     });
 
-    // Send the message to Server on 'Send' button click
-    $messageForm.submit(function(e){
-        // Prevent page from refreshing
-        e.preventDefault();
+    socket.on('send message' , sendMessage);
+    // socket.on('send messsage', function (data) {
+    //     io.sockets.in(socket.room).emit('new message', {msg: data, user: socket.username});
+    // });
 
-        if ($message.val() != ''){
-            // Send message to the server
-            socket.emit('send message' , {content:$message.val() , nickname:socket.nickname});
-
-            // Clear the text textarea
-            $message.val('');
-        }
+    socket.on('new client nickname', function(nickname){
+        socket.nickname = nickname;
+        connectedUsers.push(socket);
+        socket.broadcast.emit('system message' , 'User <b>' + socket.nickname + '</b> has joined the chat-room.');
+        updateConnectedUsers();
     });
+    // socket.on('is typing', function(data){
+    //     socket.broadcast.emit('typing', {nickname: data.nickname});
+    //    });
+}
 
-    // When receiving a message from the server, append it to the chat div
-    socket.on('new message' , function(usermessage){
-        // beep.play();    // Play a beep
-        if (usermessage.nickname == socket.nickname) {
-            $chat.append("<p class='chatMessage' id='ownMessage' >" + socket.nickname +" :<br> " + usermessage.content + "</p>")
-        }else{
-            $chat.append("<p class='chatMessage' id='otherMessage' >" + socket.nickname + ": " + usermessage.content + "</p>")
-        }
-        $("#chat").scrollTop($("#chat")[0].scrollHeight)
-        
+function sendMessage(message){
+    io.sockets.emit('new message' , message);
+}
 
-        // Auto scroll to the bottom of the chat
-        // $("#chat").prop({ scrollTop: $("#chat").prop("scrollHeight") });
-    });
+function updateConnectedUsers(){
+    nicknames = [];
+    for (i=0 ; i<connectedUsers.length ; i++){
+        nicknames.push(connectedUsers[i].nickname);
+    }
+    io.sockets.emit('update current users' , nicknames);
+}
 
-
-    // Update current users
-    socket.on('update current users' , function(nicknames){
-        var nicknamesList = '<b>Connected Users:</b>';
-        for (i=0 ; i<nicknames.length ; i++){
-            if( i != 0 ){
-                nicknamesList += "&nbsp&nbsp&nbsp&nbsp&nbsp,";
-            }
-            nicknamesList += "&nbsp&nbsp&nbsp&nbsp&nbsp<i>" + nicknames[i] + "</i>";
-        }
-        $connectedUsers.html(nicknamesList);
-    });
-
-    // System message ; display it
-    socket.on('system message' , function(message){
-        // beep.play(); // Play a bee
-            $chat.append('<p class="systemMessage"><i>' + message + '</i></p>');
-
-        // Auto scroll to the bottom of the chat
-        $("#chat").prop({ scrollTop: $("#chat").prop("scrollHeight") });
-    });
-});
