@@ -69,10 +69,10 @@ $(document).ready(function(){
     // When receiving a message from the server, append it to the chat div
     socket.on('new message' , function(usermessage){
         // beep.play();    // Play a beep
-        if (usermessage.nickname == socket.nickname) {
-            $chat.append("<p class='chatMessage' id='ownMessage' >" + socket.nickname +" :<br> " + usermessage.content + "</p>")
+        if (usermessage.nickname != socket.nickname) {
+            $chat.append("<p class='chatMessage' id='otherMessage' >" + usermessage.nickname + ": " + usermessage.content + "</p>")
         }else{
-            $chat.append("<p class='chatMessage' id='otherMessage' >" + socket.nickname + ": " + usermessage.content + "</p>")
+            $chat.append("<p class='chatMessage' id='ownMessage' >" + "Me :<br> " + usermessage.content + "</p>")
         }
         $("#chat").scrollTop($("#chat")[0].scrollHeight)
         
